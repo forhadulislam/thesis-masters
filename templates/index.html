@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title> Search for Diet </title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css" rel="stylesheet">
+    
+
+    <!-- Custom fonts for this template -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+
+    <!-- Custom styles for this template -->
+    <style>
+		h1 {
+			font-family: "Roboto Slab";
+			font-size: 56px;
+			font-weight: 100;
+			margin-top: 40px;
+			margin-bottom: 40px;
+		}
+		h2 {
+			font-family: "Roboto Slab";
+			font-size: 32px;
+			color: #1DA1F2;
+		}
+		input, button{
+			font-family: "Montserrat";
+			font-size: 26px;
+			font-weight: 400;
+			padding: 10px;
+		}
+	</style>
+
+  </head>
+  <body>
+    
+    <h1 class="col-md-10 col-md-offset-1 text-center" style=""> Search for Diet </h1>
+    
+    <div class="col-md-6 col-md-offset-3">
+        <form class="form" method="GET">
+			<div class="form-group">
+				<input type="text" name="query" placeholder="diet" class="col-md-8 form-control" value="{% if inputText %}{{inputText}}{% endif %}" required />
+            </div>            
+            <button type="submit" class="col-md-2 btn btn-success" style="margin-top: 15px;">Search</button>
+        </form>      
+    </div>
+    
+    
+    
+    {% if inputText %}
+		<div class="col-md-6 col-md-offset-3">
+			{{ inputText }}
+			{{ finalOutput }}
+		</div>
+		
+		<div class="col-md-12">
+			<div class="col-md-6 col-md-offset-3">
+			  <h2>Criteria</h2>
+			  <p>The diet has rapid weight loss potential</p>
+			  <input type="range" min="1" max="100" value="{{ finalOutput[0] * 100 }}" class="slider" id="myRange">
+			  
+			  <p>The diet has strong long-term success potential</p>
+			  <input type="range" min="1" max="100" value="{{ finalOutput[1] * 100 }}" class="slider" id="myRange">
+			  
+			  <p>The diet is affordable</p>
+			  <input type="range" min="1" max="100" value="{{ finalOutput[2] * 100 }}" class="slider" id="myRange">
+			  
+			  <p>It is mentally stick to the diet</p>
+			  <input type="range" min="1" max="100" value="{{ finalOutput[3] * 100 }}" class="slider" id="myRange">
+			  
+			  <p>The diet provides all the nutrients needed for well-being</p>
+			  <input type="range" min="1" max="100" value="{{ finalOutput[4] * 100 }}" class="slider" id="myRange">
+			  
+			  <p>The diet is generally recommended by others</p>
+			  <input type="range" min="1" max="100" value="{{ finalOutput[5] * 100 }}" class="slider" id="myRange">
+			  
+			</div>
+		</div>
+		
+		{% if searchResults %}
+		<div class='col-md-12'>			
+			<div class="col-md-6 col-md-offset-3">
+				<h2>Google search results</h2>
+				
+				{% for result in searchResults %}
+					<h4><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h4>
+					<p>{{ result.description }}</p>				
+				{% endfor %}
+			</div>
+		</div>
+		{% endif %}
+    {% endif %}
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
+    <script>
+		$(document).ready(function(){
+			$(".slider").slider();
+		});	
+    </script>
+    
+  </body>

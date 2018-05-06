@@ -62,30 +62,34 @@
     
     {% if inputText %}
 		<div class="col-md-6 col-md-offset-3">
-			{{ inputText }}
+			<h4><br />
+			6 categories:
 			{{ finalOutput }}
+			<br /> <br />
+			Quantifiers:
+			{{ quantifier }}</h4>
 		</div>
 		
 		<div class="col-md-12">
 			<div class="col-md-6 col-md-offset-3">
 			  <h2>Criteria</h2>
 			  <p>The diet has rapid weight loss potential</p>
-			  <input type="range" min="1" max="100" value="{{ finalOutput[0] * 100 }}" class="slider" id="myRange">
+			  <input type="range" min="1" max="100" value="{% if finalOutput['weight-loss']['score'] %}{{finalOutput['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  
 			  <p>The diet has strong long-term success potential</p>
-			  <input type="range" min="1" max="100" value="{{ finalOutput[1] * 100 }}" class="slider" id="myRange">
+			  <input type="range" min="1" max="100" value="{% if finalOutput['success']['score'] %}{{finalOutput['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  
 			  <p>The diet is affordable</p>
-			  <input type="range" min="1" max="100" value="{{ finalOutput[2] * 100 }}" class="slider" id="myRange">
+			  <input type="range" min="1" max="100" value="{% if finalOutput['cost']['score'] %}{{finalOutput['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  
 			  <p>It is mentally stick to the diet</p>
-			  <input type="range" min="1" max="100" value="{{ finalOutput[3] * 100 }}" class="slider" id="myRange">
+			  <input type="range" min="1" max="100" value="{% if finalOutput['mental-effort']['score'] %}{{finalOutput['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  
 			  <p>The diet provides all the nutrients needed for well-being</p>
-			  <input type="range" min="1" max="100" value="{{ finalOutput[4] * 100 }}" class="slider" id="myRange">
+			  <input type="range" min="1" max="100" value="{% if finalOutput['nutrition']['score'] %}{{finalOutput['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  
 			  <p>The diet is generally recommended by others</p>
-			  <input type="range" min="1" max="100" value="{{ finalOutput[5] * 100 }}" class="slider" id="myRange">
+			  <input type="range" min="1" max="100" value="{% if finalOutput['recommendation']['score'] %}{{finalOutput['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  
 			</div>
 		</div>

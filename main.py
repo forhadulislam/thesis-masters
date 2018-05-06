@@ -22,15 +22,7 @@ punctuation = ['(', ')', '?', ':', ';', ',', '.', '!', '/', '"', "'"]
 
 app = Flask(__name__)
 
-allRanges = {
-    'extremely_low': {'score': 0, 'words': ['lowest', 'slightest', 'least', 'extremely low']},
-    'very_low': {'score': 0.16, 'words': ['lower', 'very low']},
-    'low': {'score': 0.32, 'words': ['low']},
-    'average': {'score': 0.48, 'words': ['medium', 'average']},
-    'high': {'score': 0.64, 'words': ['high']},
-    'very_high': {'score': 0.80, 'words': ['higher', 'very high']},
-    'extremely_high': {'score': 1, 'words': ['highest', 'maximum', 'extremely high']},
-}
+
 
 '''
 	Sentence similarity
@@ -63,6 +55,17 @@ def tagged_to_synset(word, tag):
         return wn.synsets(word, wn_tag)[0]
     except:
         return None
+
+
+
+def findWords(data, sentence):
+
+    for cWord in data:
+        if cWord in sentence:
+            print(cWord)
+            return True
+
+    return False
 
 
 def sentence_similarity(sentence1, sentence2):
@@ -105,7 +108,19 @@ def symmetric_sentence_similarity(sentence1, sentence2):
 	Sentence similarity ends
 '''
 
-coreCategories = [
+negations = ['not', 'no', 'nothing']
+
+allRanges = {
+    'extremely_low': {'score': 0, 'words': ['lowest', 'slightest', 'least', 'extremely low']},
+    'very_low': {'score': 0.16, 'words': ['lower', 'very low']},
+    'low': {'score': 0.32, 'words': ['low']},
+    'average': {'score': 0.48, 'words': ['medium', 'average']},
+    'high': {'score': 0.64, 'words': ['high']},
+    'very_high': {'score': 0.80, 'words': ['higher', 'very high']},
+    'extremely_high': {'score': 1, 'words': ['highest', 'maximum', 'extremely high']},
+}
+
+coreCategoriesB = [
     "The diet has rapid weight loss potential",
     "The diet has strong long-term success potential",
     "The diet is affordable",
@@ -114,21 +129,21 @@ coreCategories = [
     "The diet is generally recommended by others"
 ]
 
-coreCategories = [
-    'weight loss',
-    'cost',
-    'success',
-    'nutrition',
-    'recommendation',
-    'mental effort'
-]
+coreCategories = {
+    'weight-loss': ['fat loss', 'lose weight', 'losing weight'],
+    'cost': ['cost','price', 'worth', 'expense', 'money'],
+    'success': ['success','progress','benefit'],
+    'nutrition': ['nutrition', 'food', 'nutriment', 'vitamin'],
+    'recommendation': ['recommendation','recommended','suggestion', 'support'],
+    'mental-effort': ['mental effort','mentality', 'mental power']
+}
 
 
 @app.route("/")
 def main():
     inputText = searchResults = ""
     posText = ""
-    finalOutput = []
+    finalOutput = {}
     quantifier = {}
     if request.method == 'GET':
         inputText = request.args.get('query')
@@ -137,22 +152,44 @@ def main():
             # Finding Quantifier
             for cRange in allRanges:
                 for cQuantifier in allRanges[cRange]['words']:
-                    print(inputText.find(cQuantifier), allRanges[cRange]['score'])
+                    findQuantifier = inputText.find(cQuantifier)
+                    if findQuantifier >= 0:
+                        quantifier[cRange] = allRanges[cRange]['score']
+                        print(findQuantifier)
+
 
             myWord = Word('weight')
             print(myWord.synonyms())
 
+            print( 'findWords()' )
+            print( findWords(['cost', 'weight'], inputText) )
+
             # Google search
             searchResults = google.search(inputText, num_page)
             posText = nltk.pos_tag(word_tokenize(inputText))
+
             for corecat in coreCategories:
                 # score = sentence_similarity(inputText, corecat)
-                score = symmetric_sentence_similarity(inputText, corecat)
-                finalOutput.append(score)
-                print(corecat, score)
+                #score = symmetric_sentence_similarity(inputText, corecat)
+
+                aWord = findWords(coreCategories[corecat], inputText)
+                print('aWord')
+                print( aWord )
+                if aWord:
+                    finalOutput[corecat] = {}
+                    finalOutput[corecat]['found'] = True
+                    for aQuantifier in quantifier:
+                        findSelectedQuantifier = inputText.find(aQuantifier)
+                        if findSelectedQuantifier >= 0:
+                            finalOutput[corecat]['score'] = quantifier[aQuantifier]
+                        else:
+                            finalOutput[corecat]['score'] = 0.1
+                else:
+                    finalOutput[corecat] = {}
+                    finalOutput[corecat]['found'] = False
 
     return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput,
-                           searchResults=searchResults)
+                           searchResults=searchResults, quantifier=quantifier)
 
 
 if __name__ == "__main__":

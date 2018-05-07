@@ -63,7 +63,7 @@ def findWords(data, sentence):
     for cWord in data:
         if cWord in sentence:
             print(cWord)
-            return True
+            return cWord
 
     return False
 
@@ -145,6 +145,8 @@ def main():
     posText = ""
     finalOutput = {}
     quantifier = {}
+    allNegations = {}
+
     if request.method == 'GET':
         inputText = request.args.get('query')
         if inputText:
@@ -169,12 +171,12 @@ def main():
             posText = nltk.pos_tag(word_tokenize(inputText))
 
             for corecat in coreCategories:
-                # score = sentence_similarity(inputText, corecat)
-                #score = symmetric_sentence_similarity(inputText, corecat)
 
+                # Passing all words from the coreCategories to find in the input text
                 aWord = findWords(coreCategories[corecat], inputText)
                 print('aWord')
                 print( aWord )
+                # If match found
                 if aWord:
                     finalOutput[corecat] = {}
                     finalOutput[corecat]['found'] = True
@@ -187,6 +189,12 @@ def main():
                 else:
                     finalOutput[corecat] = {}
                     finalOutput[corecat]['found'] = False
+
+            # Finding Negations
+            for negate in allNegations:
+                findNegations = inputText.find(negate)
+                if findNegations >= 0:
+                    allNegations[corecat]['score'] = quantifier[aQuantifier]
 
     return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput,
                            searchResults=searchResults, quantifier=quantifier)

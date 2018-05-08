@@ -21,13 +21,16 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
-	<link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One|Anton|Archivo+Black|Bevan|Eczar|Fredoka+One|Overlock|Paytone+One|Pridi|Slabo+13px|Titan+One|Ultra|Unica+One" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One|Antic|Anton|Archivo+Black|Bevan|Biryani|Coustard|Cutive|Domine|Eczar|Fauna+One|Fredoka+One|Glass+Antiqua|Glegoo|Habibi|Hammersmith+One|IBM+Plex+Sans|Kreon|Lilita+One|Overlock|Overpass|PT+Mono|Palanquin+Dark|Paytone+One|Podkova|Pridi|Rajdhani|Scope+One|Signika+Negative|Slabo+13px|Slabo+27px|Suez+One|Titan+One|Ultra|Unica+One|Zilla+Slab" rel="stylesheet">
+
 
 
     <!-- Custom styles for this template -->
     <style>
     	/*
     		Fonts --
+
+
 
 
 			font-family: 'Titan One', cursive;
@@ -56,9 +59,64 @@
 
 			font-family: 'Pridi', serif;
 
+			font-family: 'Lilita One', cursive;
+
+			font-family: 'Palanquin Dark', sans-serif;
+
+			font-family: 'Podkova', serif;
+
+			font-family: 'Suez One', serif;
+
+			font-family: 'Slabo 27px', serif;
+
+			font-family: 'IBM Plex Sans', sans-serif;
+
+			font-family: 'Rajdhani', sans-serif;
+
+			font-family: 'Domine', serif;
+
+			font-family: 'Hammersmith One', sans-serif;
+
+			font-family: 'Glegoo', serif;
+
+			font-family: 'Signika Negative', sans-serif;
+
+			font-family: 'Kreon', serif;
+
+			font-family: 'PT Mono', monospace;
+
+			font-family: 'Overpass', sans-serif;
+
+			font-family: 'Coustard', serif;
+
+			font-family: 'Antic', sans-serif;
+
+			font-family: 'Fauna One', serif;
+
+			font-family: 'Zilla Slab', serif;
+
+			font-family: 'Cutive', serif;
+
+			font-family: 'Biryani', sans-serif;
+
+			font-family: 'Habibi', serif;
+
+			font-family: 'Scope One', serif;
+
+			font-family: 'Glass Antiqua', cursive;
+
+
+
+
+
+
+
 
     	*/
-
+		body{
+			font-size: 16px;
+			font-family: 'Biryani', sans-serif;
+		}
 		h1 {
 			font-family: 'Bevan', cursive;
 			font-size: 56px;
@@ -68,7 +126,7 @@
 		}
 		h2 {
 			font-family: "Roboto Slab";
-			font-size: 32px;
+			font-size: 42px;
 			color: #1DA1F2;
 		}
 		input, button{
@@ -80,6 +138,17 @@
 		.main-heading{
 			margin-top: 2em;
 		}
+		.sub-heading{
+			margin-top: 1.2em;
+			font-family: 'Suez One', serif;
+			border-bottom: 1px solid #d2d2d2;
+			color: #444;
+		}
+		.sub-heading.criteria{
+			color: #7F2E17;
+			border-bottom: 2px solid #7F2E17;
+			margin-bottom: 1.2em;
+		}
 	</style>
 
   </head>
@@ -90,7 +159,7 @@
     <div class="col-md-6 col-md-offset-3">
         <form class="form" method="GET">
 			<div class="form-group">
-				<input type="text" name="query" placeholder="diet" class="col-md-12 form-control" value="{% if inputText %}{{inputText}}{% endif %}" required />
+				<input type="text" name="query" placeholder="Type your diet" class="col-md-12 form-control" value="{% if inputText %}{{inputText}}{% endif %}" required />
             </div>            
             <button type="submit" class="col-md-3 btn btn-danger" style="margin-top: 15px;">Search</button>
         </form>      
@@ -110,24 +179,24 @@
 		
 		<div class="col-md-12">
 			<div class="col-md-6 col-md-offset-3">
-			  <h2>Criteria</h2>
+			  <h2 class="sub-heading text-right criteria">Criteria</h2>
 			  <label>The diet has rapid weight loss potential</label>
-			  <input type="range" min="1" max="100" value="{% if finalOutput['weight-loss']['score'] %}{{finalOutput['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+			  <input type="range" min="0" max="100" value="{% if finalOutput['weight-loss']['score'] %}{{finalOutput['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  <br />
 			  <label>The diet has strong long-term success potential</label>
-			  <input type="range" min="1" max="100" value="{% if finalOutput['success']['score'] %}{{finalOutput['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+			  <input type="range" min="0" max="100" value="{% if finalOutput['success']['score'] %}{{finalOutput['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  <br />
 			  <label>The diet is affordable</label>
-			  <input type="range" min="1" max="100" value="{% if finalOutput['cost']['score'] %}{{finalOutput['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+			  <input type="range" min="0" max="100" value="{% if finalOutput['cost']['score'] %}{{finalOutput['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  <br />
 			  <label>It is mentally stick to the diet</label>
-			  <input type="range" min="1" max="100" value="{% if finalOutput['mental-effort']['score'] %}{{finalOutput['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+			  <input type="range" min="0" max="100" value="{% if finalOutput['mental-effort']['score'] %}{{finalOutput['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  <br />
 			  <label>The diet provides all the nutrients needed for well-being</label>
-			  <input type="range" min="1" max="100" value="{% if finalOutput['nutrition']['score'] %}{{finalOutput['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+			  <input type="range" min="0" max="100" value="{% if finalOutput['nutrition']['score'] %}{{finalOutput['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  <br />
 			  <label>The diet is generally recommended by others</label>
-			  <input type="range" min="1" max="100" value="{% if finalOutput['recommendation']['score'] %}{{finalOutput['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+			  <input type="range" min="0" max="100" value="{% if finalOutput['recommendation']['score'] %}{{finalOutput['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
 			  
 			</div>
 		</div>
@@ -135,7 +204,7 @@
 		{% if searchResults %}
 		<div class='col-md-12'>			
 			<div class="col-md-6 col-md-offset-3">
-				<h2>Google search results</h2>
+				<h2 class="sub-heading text-center"><big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big> <span style="color: #4885ed">search</span> <span style="color: #db3236">results</span></h2>
 				
 				{% for result in searchResults %}
 					<h4><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h4>

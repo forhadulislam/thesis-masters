@@ -138,6 +138,9 @@
 		.main-heading{
 			margin-top: 2em;
 		}
+		.google-results{
+		    background: #f2f2f2;
+		}
 		.sub-heading{
 			margin-top: 1.2em;
 			font-family: 'Suez One', serif;
@@ -174,7 +177,10 @@
 			{{ finalOutput }}
 			<br /> <br />
 			Quantifiers:
-			{{ quantifier }}</h4>
+			{{ quantifier }}
+				<br /> <br />
+			POS Tags:
+			{{ posText }}</h4>
 		</div>
 		
 		<div class="col-md-12">
@@ -200,19 +206,35 @@
 			  
 			</div>
 		</div>
-		
-		{% if searchResults %}
-		<div class='col-md-12'>			
-			<div class="col-md-6 col-md-offset-3">
-				<h2 class="sub-heading text-center"><big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big> <span style="color: #4885ed">search</span> <span style="color: #db3236">results</span></h2>
-				
-				{% for result in searchResults %}
-					<h4><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h4>
-					<p>{{ result.description }}</p>				
-				{% endfor %}
-			</div>
-		</div>
-		{% endif %}
+
+        <div class='col-md-12'>
+            {% if searchResults %}
+
+                <div class="col-md-6 google-results">
+                    <h2 class="sub-heading text-center"><big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big> <span style="color: #4885ed">search</span> <span style="color: #db3236">results</span></h2>
+
+                    {% for result in searchResults %}
+                        <h4><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h4>
+                        <p>{{ result.description }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
+
+            {% if apiOutput %}
+                <div class="col-md-6">
+                    <h2 class="sub-heading text-center"> <big>Diet</big> API Results </h2>
+
+
+                    {% for apiResult in apiOutput %}
+                        <h4><a href='{{ apiResult.primary_link }}' target='_blank'>{{ apiResult.option_title }}</a></h4>
+                        <p>{{ apiResult.option_details }}</p>
+                    {% endfor %}
+                </div>
+
+            {% endif %}
+        </div>
     {% endif %}
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-import sys, tweepy, csv, gensim, nltk
+import sys, tweepy, csv, gensim, nltk, requests, json
 import numpy as np
 import re, string, timeit
 from nltk import word_tokenize
@@ -25,38 +25,8 @@ app = Flask(__name__)
 
 
 '''
-	Sentence similarity
+	Find words
 '''
-
-
-def penn_to_wn(tag):
-    """ Convert between a Penn Treebank tag to a simplified Wordnet tag """
-    if tag.startswith('N'):
-        return 'n'
-
-    if tag.startswith('V'):
-        return 'v'
-
-    if tag.startswith('J'):
-        return 'a'
-
-    if tag.startswith('R'):
-        return 'r'
-
-    return None
-
-
-def tagged_to_synset(word, tag):
-    wn_tag = penn_to_wn(tag)
-    if wn_tag is None:
-        return None
-
-    try:
-        return wn.synsets(word, wn_tag)[0]
-    except:
-        return None
-
-
 
 def findWords(data, sentence):
 
@@ -68,45 +38,17 @@ def findWords(data, sentence):
     return False
 
 
-def sentence_similarity(sentence1, sentence2):
-    """ compute the sentence similarity using Wordnet """
-    # Tokenize and tag
-    sentence1 = pos_tag(word_tokenize(sentence1))
-    sentence2 = pos_tag(word_tokenize(sentence2))
+def sendDietApiRequest(criteria_importances, num_of_options=6, user_id='msc_forhadul'):
+    #criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
 
-    # Get the synsets for the tagged words
-    synsets1 = [tagged_to_synset(*tagged_word) for tagged_word in sentence1]
-    synsets2 = [tagged_to_synset(*tagged_word) for tagged_word in sentence2]
+    try:
+        r = requests.post('https://api.scientificdiets.com/getrecommendations2.php',
+                          data={'criteria_importances': criteria_importances, 'num_of_options': num_of_options,
+                                'user_id': user_id})
+        return json.loads(r.text)
 
-    # Filter out the Nones
-    synsets1 = [ss for ss in synsets1 if ss]
-    synsets2 = [ss for ss in synsets2 if ss]
-
-    score, count = 0.0, 0
-
-    # For each word in the first sentence
-    for synset in synsets1:
-        # Get the similarity value of the most similar word in the other sentence
-        best_score = max([synset.path_similarity(ss) for ss in synsets2])
-
-        # Check that the similarity could have been computed
-        if best_score is not None:
-            score += best_score
-            count += 1
-
-    # Average the values
-    score /= count
-    return score
-
-
-def symmetric_sentence_similarity(sentence1, sentence2):
-    """ compute the symmetric sentence similarity using Wordnet """
-    return (sentence_similarity(sentence1, sentence2) + sentence_similarity(sentence2, sentence1)) / 2
-
-
-'''
-	Sentence similarity ends
-'''
+    except:
+        return False
 
 negations = ['not', 'no', 'nothing']
 
@@ -196,8 +138,12 @@ def main():
                 if findNegations >= 0:
                     allNegations[corecat]['score'] = quantifier[aQuantifier]
 
+        criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
+
+        apiOutput = sendDietApiRequest(criteria_importances, 10)
+
     return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput,
-                           searchResults=searchResults, quantifier=quantifier)
+                           searchResults=searchResults, quantifier=quantifier, apiOutput=apiOutput)
 
 
 if __name__ == "__main__":

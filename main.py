@@ -72,12 +72,12 @@ coreCategoriesB = [
 ]
 
 coreCategories = {
-    'weight-loss': ['fat loss', 'lose weight', 'losing weight'],
-    'cost': ['cost','price', 'worth', 'expense', 'money'],
-    'success': ['success','progress','benefit'],
-    'nutrition': ['nutrition', 'food', 'nutriment', 'vitamin'],
-    'recommendation': ['recommendation','recommended','suggestion', 'support'],
-    'mental-effort': ['mental effort','mentality', 'mental power']
+    'weight-loss': { 'words': ['fat loss', 'lose weight', 'losing weight'], 'id': 6 },
+    'cost': { 'words': ['cost','price', 'worth', 'expense', 'money'], 'id': 8 },
+    'success': { 'words': ['success','progress','benefit'], 'id': 7 },
+    'nutrition': { 'words': ['nutrition', 'food', 'nutriment', 'vitamin'], 'id': 10 },
+    'recommendation': { 'words': ['recommendation','recommended','suggestion', 'support'], 'id': 11 },
+    'mental-effort': { 'words': ['mental effort','mentality', 'mental power'], 'id': 9 }
 }
 
 
@@ -115,7 +115,7 @@ def main():
             for corecat in coreCategories:
 
                 # Passing all words from the coreCategories to find in the input text
-                aWord = findWords(coreCategories[corecat], inputText)
+                aWord = findWords(coreCategories[corecat]['words'], inputText)
                 print('aWord')
                 print( aWord )
                 # If match found
@@ -138,7 +138,19 @@ def main():
                 if findNegations >= 0:
                     allNegations[corecat]['score'] = quantifier[aQuantifier]
 
-        criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
+        criteria_importances = []
+        for coreCategory in coreCategories:
+            if 'score' in finalOutput[coreCategory].keys():
+                currentScore = finalOutput[coreCategory]['score']
+            else:
+                currentScore = 0
+
+            criteria_importances.append( [ coreCategories[coreCategory]['id'], currentScore ] )
+
+
+        print( criteria_importances )
+
+        #criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
 
         apiOutput = sendDietApiRequest(criteria_importances, 10)
 

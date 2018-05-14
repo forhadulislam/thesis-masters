@@ -211,14 +211,18 @@
 		</div>
 
         <div class='col-md-12'>
-            {% if searchResults %}
+            {% if gSearchOutputs %}
 
                 <div class="col-md-6 google-results">
                     <h2 class="sub-heading text-center"><big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big> <span style="color: #4885ed">search</span> <span style="color: #db3236">results</span></h2>
 
-                    {% for result in searchResults %}
-                        <h4><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h4>
-                        <p>{{ result.description }}</p>
+                    {% for result in gSearchOutputs %}
+                        <h3><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h3>
+                        <ul>
+                            {% for heading in result.headings %}
+                                <li>{{ heading|striptags }}</li>
+                            {% endfor %}
+                        </ul>
                     {% endfor %}
                 </div>
             {% endif %}
@@ -231,7 +235,7 @@
 
 
                     {% for apiResult in apiOutput %}
-                        <h4><a href='{{ apiResult.primary_link }}' target='_blank'>{{ apiResult.option_title }}</a></h4>
+                        <h3><a href='{{ apiResult.primary_link }}' target='_blank'>{{ apiResult.option_title }}</a></h3>
                         <p>{{ apiResult.option_details }}</p>
                     {% endfor %}
                 </div>

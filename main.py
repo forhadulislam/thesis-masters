@@ -11,6 +11,7 @@ from nltk import word_tokenize, pos_tag
 from nltk.corpus import wordnet as wn
 
 from google import google
+from bs4 import BeautifulSoup
 
 # Thesaurus-API - https://github.com/Manwholikespie/thesaurus-api
 from libs.thesaurus.thesaurus import Word
@@ -39,8 +40,6 @@ def findWords(data, sentence):
 
 
 def sendDietApiRequest(criteria_importances, num_of_options=6, user_id='msc_forhadul'):
-    #criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
-
     try:
         r = requests.post('https://api.scientificdiets.com/getrecommendations2.php',
                           data={'criteria_importances': criteria_importances, 'num_of_options': num_of_options,
@@ -108,8 +107,10 @@ def main():
             print( 'findWords()' )
             print( findWords(['cost', 'weight'], inputText) )
 
-            # Google search
-            searchResults = google.search(inputText, num_page)
+
+
+
+
             posText = nltk.pos_tag(word_tokenize(inputText))
 
             for corecat in coreCategories:
@@ -147,15 +148,32 @@ def main():
 
             criteria_importances.append( [ coreCategories[coreCategory]['id'], currentScore ] )
 
-
-        print( criteria_importances )
-
         #criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
 
         apiOutput = sendDietApiRequest(criteria_importances, 10)
 
+        # Google search
+        searchResults = google.search(inputText, num_page)
+
+        gSearchOutputs = []
+
+        for gResult in searchResults:
+            r = requests.get(gResult.link)
+            soup = BeautifulSoup(r.text, 'html.parser')
+
+            heading2 = soup.find_all('h2')
+
+            analyzedResult = {}
+            analyzedResult['name'] = gResult.name
+            analyzedResult['link'] = gResult.link
+            analyzedResult['description'] = gResult.description
+            analyzedResult['headings'] = heading2
+
+            gSearchOutputs.append(analyzedResult)
+
+
     return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput,
-                           searchResults=searchResults, quantifier=quantifier, apiOutput=apiOutput)
+                           gSearchOutputs=gSearchOutputs, quantifier=quantifier, apiOutput=apiOutput)
 
 
 if __name__ == "__main__":

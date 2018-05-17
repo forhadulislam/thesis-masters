@@ -217,12 +217,30 @@
                     <h2 class="sub-heading text-center"><big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big> <span style="color: #4885ed">search</span> <span style="color: #db3236">results</span></h2>
 
                     {% for result in gSearchOutputs %}
-                        <h3><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h3>
-                        <ul>
-                            {% for heading in result.headings %}
-                                <li>{{ heading|striptags }}</li>
-                            {% endfor %}
-                        </ul>
+
+                            {% if result.headings2 or result.headings3 %}
+                                <h3><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h3>
+                                <ul>
+                                    {% if result.headings2 %}
+
+                                        {% for heading in result.headings2 %}
+                                            {% if heading|striptags %}
+                                                <li>{{ heading|striptags }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                    {% elif result.headings3 %}
+
+                                        {% for heading in result.headings3 %}
+                                            {% if heading|striptags %}
+                                                <li>{{ heading|striptags }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                    {% endif %}
+
+                                </ul>
+                            {% endif %}
                     {% endfor %}
                 </div>
             {% endif %}

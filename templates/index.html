@@ -188,26 +188,40 @@
 		
 		<div class="col-md-12 criteria">
 			<div class="col-md-6 col-md-offset-3">
-			  <h2 class="sub-heading text-right criteria">Criteria</h2>
-			  <label>The diet has rapid weight loss potential</label>
-			  <input type="range" min="0" max="100" value="{% if finalOutput['weight-loss']['score'] %}{{finalOutput['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
-			  <br />
-			  <label>The diet has strong long-term success potential</label>
-			  <input type="range" min="0" max="100" value="{% if finalOutput['success']['score'] %}{{finalOutput['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
-			  <br />
-			  <label>The diet is affordable</label>
-			  <input type="range" min="0" max="100" value="{% if finalOutput['cost']['score'] %}{{finalOutput['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
-			  <br />
-			  <label>It is mentally stick to the diet</label>
-			  <input type="range" min="0" max="100" value="{% if finalOutput['mental-effort']['score'] %}{{finalOutput['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
-			  <br />
-			  <label>The diet provides all the nutrients needed for well-being</label>
-			  <input type="range" min="0" max="100" value="{% if finalOutput['nutrition']['score'] %}{{finalOutput['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
-			  <br />
-			  <label>The diet is generally recommended by others</label>
-			  <input type="range" min="0" max="100" value="{% if finalOutput['recommendation']['score'] %}{{finalOutput['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
-			  
-			</div>
+
+                <h2 class="sub-heading text-right criteria">Criteria</h2>
+
+                <div class="ranges">
+                  <label>The diet has rapid weight loss potential <span></span> </label>
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['weight-loss']['score'] %}{{finalOutput['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                </div>
+                    <br />
+                <div class="ranges">
+                  <label>The diet has strong long-term success potential <span></span> </label>
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['success']['score'] %}{{finalOutput['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                </div><br />
+                <div class="ranges">
+                  <label>The diet is affordable <span></span> </label>
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['cost']['score'] %}{{finalOutput['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                </div>
+                    <br />
+                <div class="ranges">
+                  <label>It is mentally stick to the diet <span></span> </label>
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['mental-effort']['score'] %}{{finalOutput['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                </div>
+                        <br />
+                <div class="ranges">
+                  <label>The diet provides all the nutrients needed for well-being <span></span> </label>
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['nutrition']['score'] %}{{finalOutput['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                </div>
+                <br />
+
+                <div class="ranges">
+                  <label>The diet is generally recommended by others <span></span> </label>
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['recommendation']['score'] %}{{finalOutput['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                </div>
+
+            </div>
 		</div>
 
         <div class='col-md-12'>
@@ -217,7 +231,6 @@
                     <h2 class="sub-heading text-center"><big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big> <span style="color: #4885ed">search</span> <span style="color: #db3236">results</span></h2>
 
                     {% for result in gSearchOutputs %}
-
                             {% if result.headings2 or result.headings3 %}
                                 <h3><a href='{{ result.link }}' target='_blank'>{{ result.name }}</a></h3>
                                 <ul>
@@ -262,10 +275,21 @@
         </div>
     {% endif %}
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
     <script>
 		$(document).ready(function(){
 			$(".slider").slider();
+
+
+			var values = [2, 30, 20, 30, 35, 45];
+            $('.ranges .rangeSlider').change(function() {
+                console.log( this.value );
+                console.log( $(this).parent('.ranges') );
+                $(this).parent('.ranges').children('label span').text(values[this.value]);
+            });
+
+
 		});	
     </script>
     

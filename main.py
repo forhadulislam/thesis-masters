@@ -95,12 +95,30 @@ def findQuantifier( queryWord ):
     return resultOutput
 
 
+def findCoreCategory( inputs ):
+    output = {}
+
+    varType = isinstance(inputs, list)
+
+    if varType:
+        # For each and every input check in the coreCategories
+        for inp in inputs:
+            for corecat in coreCategories:
+
+                # Passing all words from the coreCategories to find in the input text
+                aWord = findWords(coreCategories[corecat]['words'], inp)
+
+                # If match found
+                if aWord:
+                    output[corecat] = {}
+                    output[corecat]['found'] = True
+
+    return output
 
 
 @app.route("/")
 def main():
-    inputText = searchResults = ""
-    posText = ""
+    inputText = searchResults = posText = ""
     finalOutput = {}
     quantifier = {}
     posQuantifier = {}
@@ -127,8 +145,6 @@ def main():
             posText = nltk.pos_tag(word_tokenize(inputText))
 
             for idx, postag in enumerate(posText):
-                #print('  POS tags ')
-                #print(postag)
 
                 pWord = postag[0]
                 pType = postag[1]
@@ -136,13 +152,46 @@ def main():
                 # Finding if the word is JJ or Adjective
                 if pType == 'JJ':
 
-                    # Finding if the previous word is RB or Adverb
+                    categories = []
+
+                    try:
+                        categories.append(posText[idx + 1])
+                    except:
+                        pass
+
+                    try:
+                        categories.append(posText[idx + 2])
+                    except:
+                        pass
+
+                    # Finding if the previous word
+                    # is RB or Adverb
                     if posText[idx-1] and posText[idx-1][1] == 'RB':
                         prevWord = posText[idx-1][0]
                         fWord = prevWord + ' ' + pWord
                         findQ = findQuantifier( fWord )
 
-                        print('query ', fWord, findQ)
+
+
+
+                        if posText[idx -2] and posText[idx - 2][1] == 'RB':
+                            prevPrevWord = posText[idx -2]
+
+                            # Finding negations
+                            if prevPrevWord in allNegations:
+                                # if negation is found
+                                print('query RB RB JJ: negation', fWord, findQ)
+                                print( findCoreCategory(categories) )
+                            else:
+                                # if negation isn't found
+                                print('query RB JJ', fWord, findQ)
+                                print(findCoreCategory(categories))
+                        else:
+
+                            print('query RB JJ', fWord, findQ)
+                            print(findCoreCategory(categories))
+
+
                     else:
                         findQ = findQuantifier(pWord)
                         print('query', findQ)
@@ -156,8 +205,7 @@ def main():
 
                 # Passing all words from the coreCategories to find in the input text
                 aWord = findWords(coreCategories[corecat]['words'], inputText)
-                print('aWord')
-                print( aWord )
+
                 # If match found
                 if aWord:
                     finalOutput[corecat] = {}
@@ -172,11 +220,6 @@ def main():
                     finalOutput[corecat] = {}
                     finalOutput[corecat]['found'] = False
 
-            # Finding Negations
-            for negate in allNegations:
-                findNegations = inputText.find(negate)
-                if findNegations >= 0:
-                    allNegations[corecat]['score'] = quantifier[aQuantifier]
 
             criteria_importances = []
             for coreCategory in coreCategories:

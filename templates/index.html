@@ -182,6 +182,9 @@
 			Quantifiers:
 			{{ quantifier }}
 				<br /> <br />
+			findTheCategories:
+			{{ findTheCategories }}
+				<br /> <br />
 			POS Tags:
 			{{ posText }}</h4>
 		</div>
@@ -193,32 +196,32 @@
 
                 <div class="ranges">
                   <label>The diet has rapid weight loss potential <span></span> </label>
-                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['weight-loss']['score'] %}{{finalOutput['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['weight-loss']['score'] %}{{findTheCategories['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                     <br />
                 <div class="ranges">
                   <label>The diet has strong long-term success potential <span></span> </label>
-                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['success']['score'] %}{{finalOutput['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['success']['score'] %}{{findTheCategories['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div><br />
                 <div class="ranges">
                   <label>The diet is affordable <span></span> </label>
-                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['cost']['score'] %}{{finalOutput['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['cost']['score'] %}{{findTheCategories['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                     <br />
                 <div class="ranges">
                   <label>It is mentally stick to the diet <span></span> </label>
-                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['mental-effort']['score'] %}{{finalOutput['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['mental-effort']['score'] %}{{findTheCategories['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                         <br />
                 <div class="ranges">
                   <label>The diet provides all the nutrients needed for well-being <span></span> </label>
-                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['nutrition']['score'] %}{{finalOutput['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['nutrition']['score'] %}{{findTheCategories['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                 <br />
 
                 <div class="ranges">
                   <label>The diet is generally recommended by others <span></span> </label>
-                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if finalOutput['recommendation']['score'] %}{{finalOutput['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
+                  <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['recommendation']['score'] %}{{findTheCategories['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
 
             </div>

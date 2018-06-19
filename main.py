@@ -27,13 +27,13 @@ app = Flask(__name__)
 negations = ['not', 'no', 'nothing']
 
 allRanges = {
-    'extremely_low': {'score': 0, 'words': ['lowest', 'slightest', 'least', 'extremely low']},
-    'very_low': {'score': 0.16, 'words': ['lower', 'very low', 'so low']},
-    'low': {'score': 0.32, 'words': ['low']},
-    'average': {'score': 0.48, 'words': ['medium', 'average']},
-    'high': {'score': 0.64, 'words': ['high']},
-    'very_high': {'score': 0.80, 'words': ['higher', 'very high', 'so high']},
-    'extremely_high': {'score': 1, 'words': ['highest', 'maximum', 'extremely high']},
+    'extremely_low': {'score': 0, 'index': 1, 'words': ['lowest', 'slightest', 'least', 'extremely low']},
+    'very_low': {'score': 0.16, 'index': 2, 'words': ['lower', 'very low', 'so low']},
+    'low': {'score': 0.32, 'index': 3, 'words': ['low']},
+    'average': {'score': 0.48, 'index': 4, 'words': ['medium', 'average']},
+    'high': {'score': 0.64, 'index': 5, 'words': ['high']},
+    'very_high': {'score': 0.80, 'index': 6, 'words': ['higher', 'very high', 'so high']},
+    'extremely_high': {'score': 1, 'index': 7, 'words': ['highest', 'maximum', 'extremely high']},
 }
 
 coreCategoriesB = [
@@ -51,7 +51,7 @@ coreCategories = {
     'success': { 'words': ['success','progress','benefit'], 'id': 7 },
     'nutrition': { 'words': ['nutrition', 'food', 'nutriment', 'vitamin'], 'id': 10 },
     'recommendation': { 'words': ['recommendation','recommended','suggestion', 'support'], 'id': 11 },
-    'mental-effort': { 'words': ['mental effort','mentality', 'mental power'], 'id': 9 }
+    'mental-effort': { 'words': ['mental effort','mentality', 'mental power', 'mental'], 'id': 9 }
 }
 
 
@@ -115,13 +115,39 @@ def findCoreCategory( inputs ):
 
     return output
 
+def findReverseQuantifier( input ):
+    output = {}
+
+    if len(input):
+
+        keyCat, valueCat = input.items()[0]
+        reverseIndex = -1
+        try:
+            if len(allRanges[keyCat]):
+                rangeIndex = allRanges[keyCat]['index']
+                reverseIndex = len(allRanges) - rangeIndex + 1
+            else:
+                return output
+
+        except:
+            return output
+
+        for aQuantifier in allRanges:
+            if (allRanges[aQuantifier]['index'] == reverseIndex):
+                output[aQuantifier] = allRanges[aQuantifier]['score']
+                return output
+
+
+    return output
+
+
 
 @app.route("/")
 def main():
     inputText = searchResults = posText = ""
     finalOutput = {}
     quantifier = {}
-    posQuantifier = {}
+    findTheCategories = {}
     allNegations = {}
     gSearchOutputs = []
 
@@ -131,17 +157,9 @@ def main():
         inputText = request.args.get('query')
         if inputText:
 
-            # Finding Quantifier
-            for cRange in allRanges:
-                for cQuantifier in allRanges[cRange]['words']:
-                    findaQuantifier = inputText.find(cQuantifier)
-                    if findaQuantifier >= 0:
-                        quantifier[cRange] = allRanges[cRange]['score']
-
-
             # New Part
 
-            # POS finder
+            # POS Tagging
             posText = nltk.pos_tag(word_tokenize(inputText))
 
             for idx, postag in enumerate(posText):
@@ -153,6 +171,9 @@ def main():
                 if pType == 'JJ':
 
                     categories = []
+
+                    findWordCategory = False
+                    findWordQuantifier = False
 
                     try:
                         categories.append(posText[idx + 1])
@@ -176,26 +197,75 @@ def main():
 
                         if posText[idx -2] and posText[idx - 2][1] == 'RB':
                             prevPrevWord = posText[idx -2]
+                            prevPrevWord = prevPrevWord[0]
 
                             # Finding negations
-                            if prevPrevWord in allNegations:
+                            if prevPrevWord in negations:
                                 # if negation is found
                                 print('query RB RB JJ: negation', fWord, findQ)
-                                print( findCoreCategory(categories) )
+                                print('query RB RB JJ: negation', findReverseQuantifier( findQ ) )
+                                findWordCategory = findCoreCategory(categories)
+                                findWordQuantifier = findQ
+                                findWordQuantifier = findReverseQuantifier( findQ )
                             else:
                                 # if negation isn't found
-                                print('query RB JJ', fWord, findQ)
-                                print(findCoreCategory(categories))
+                                print('query RB JJ 213', fWord, findQ, prevPrevWord)
+
+                                findWordCategory = findCoreCategory(categories)
+                                findWordQuantifier = findQ
                         else:
 
-                            print('query RB JJ', fWord, findQ)
-                            print(findCoreCategory(categories))
+                            # If the word before JJ or Ajdective is found in negation or else
+                            if prevWord in negations:
+                                findQ = findQuantifier(pWord)
+                                print('query RB RB JJ: negation 222', pWord, findQ)
+                                print('query RB RB JJ: negation 223', findReverseQuantifier(findQ))
+                                findWordCategory = findCoreCategory(categories)
+                                findWordQuantifier = findReverseQuantifier( findQ )
+
+                            else:
+
+                                print('query RB JJ 229', fWord, findQ)
+                                findWordCategory = findCoreCategory(categories)
+                                findWordQuantifier = findQ
+
 
 
                     else:
                         findQ = findQuantifier(pWord)
-                        print('query', findQ)
+                        prevWord = posText[idx - 1][0]
+                        print('prevWord')
+                        print(prevWord)
+                        if prevWord in negations:
+                            # if negation is found
+                            print('query RB JJ: negation 242', findQ)
+                            print('query RB JJ: negation 243', findReverseQuantifier(findQ))
+                            findWordCategory = findCoreCategory(categories)
+                            findWordQuantifier = findReverseQuantifier( findQ )
+                        else:
+                            # if negation isn't found
+                            print('query', findQ)
+                            findWordCategory = findCoreCategory(categories)
+                            findWordQuantifier = findQ
 
+
+
+
+                    # Append the coreCategory
+
+                    if len(findWordCategory):
+                        try:
+                            keyCat, valueCat = findWordCategory.items()[0]
+                            keyQnt, valueQnt = findWordQuantifier.items()[0]
+
+                            findTheCategories[keyCat] = valueCat
+
+                            quantifierKey = findWordQuantifier.items()[0]
+                            findTheCategories[keyCat]['quantifier'] = {quantifierKey[0]: quantifierKey[1] }
+                            findTheCategories[keyCat]['score'] = quantifierKey[1]
+                            quantifier[keyQnt] = valueQnt
+                        except:
+                            pass
 
 
             # New Part
@@ -203,33 +273,31 @@ def main():
 
             for corecat in coreCategories:
 
-                # Passing all words from the coreCategories to find in the input text
-                aWord = findWords(coreCategories[corecat]['words'], inputText)
-
+                print(corecat)
                 # If match found
-                if aWord:
-                    finalOutput[corecat] = {}
-                    finalOutput[corecat]['found'] = True
-                    for aQuantifier in quantifier:
-                        findSelectedQuantifier = inputText.find(aQuantifier)
-                        if findSelectedQuantifier >= 0:
-                            finalOutput[corecat]['score'] = quantifier[aQuantifier]
-                        else:
-                            finalOutput[corecat]['score'] = 0.1
+                if corecat not in findTheCategories:
+                    findTheCategories[corecat] = {}
+                    findTheCategories[corecat]['found'] = False
+                    findTheCategories[corecat]['score'] = 0
+                '''
                 else:
                     finalOutput[corecat] = {}
                     finalOutput[corecat]['found'] = False
+                '''
+
 
 
             criteria_importances = []
             for coreCategory in coreCategories:
-                if 'score' in finalOutput[coreCategory].keys():
-                    currentScore = finalOutput[coreCategory]['score']
+                if 'score' in findTheCategories[coreCategory].keys():
+                    currentScore = findTheCategories[coreCategory]['score']
                 else:
                     currentScore = 0
 
                 criteria_importances.append( [ coreCategories[coreCategory]['id'], currentScore ] )
 
+            print('Line 299')
+            print(criteria_importances)
             #criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
 
             apiOutput = sendDietApiRequest(criteria_importances, 6)
@@ -267,7 +335,7 @@ def main():
 
 
     return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput,
-                           gSearchOutputs=gSearchOutputs, quantifier=quantifier, apiOutput=apiOutput)
+                           gSearchOutputs=gSearchOutputs, quantifier=quantifier, apiOutput=apiOutput, findTheCategories=findTheCategories)
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ num_page = 1
 stop = set(stopwords.words('english'))
 punctuation = ['(', ')', '?', ':', ';', ',', '.', '!', '/', '"', "'"]
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 
 negations = ['not', 'no', 'nothing']
@@ -54,6 +54,20 @@ coreCategories = {
     'mental-effort': { 'words': ['mental effort','mentality', 'mental power', 'mental'], 'id': 9 }
 }
 
+foods = []
+
+with open('db/foods.csv') as csvfile:
+    readCSV = csv.reader(csvfile, delimiter=',')
+    row = 0
+    for aRow in readCSV:
+        if(row == 0):
+            row += 1
+            continue
+
+        foorName = aRow[1]
+        foods.append(foorName)
+        row += 1
+
 
 '''
 	Find words
@@ -63,15 +77,21 @@ def findWords(data, sentence):
 
     for cWord in data:
         if cWord in sentence:
-            print(cWord)
             return cWord
 
     return False
 
+def getTestVisible(element):
+    if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
+        return False
+    elif re.match('<!--.*-->', str(element.encode('utf-8'))):
+        return False
+    return True
+
 
 def sendDietApiRequest(criteria_importances, num_of_options=6, user_id='msc_forhadul'):
     try:
-        r = requests.post('https://api.scientificdiets.com/getrecommendations2.php',
+        r = requests.post('https://api.scientificdiets.com/getrecommendations.php',
                           data={'criteria_importances': criteria_importances, 'num_of_options': num_of_options,
                                 'user_id': user_id})
         return json.loads(r.text)
@@ -148,10 +168,20 @@ def main():
     finalOutput = {}
     quantifier = {}
     findTheCategories = {}
-    allNegations = {}
     gSearchOutputs = []
 
+    unifiedGoogleOutput = []
+    unifiedApiOutput = []
+
+    commonGoogleOutput = []
+    commonApiOutput = []
+
     apiOutput = False
+
+    apiScrap = []
+
+    googleSearchCloud = {}
+    dietApiCloud = {}
 
     if request.method == 'GET':
         inputText = request.args.get('query')
@@ -202,14 +232,11 @@ def main():
                             # Finding negations
                             if prevPrevWord in negations:
                                 # if negation is found
-                                print('query RB RB JJ: negation', fWord, findQ)
-                                print('query RB RB JJ: negation', findReverseQuantifier( findQ ) )
                                 findWordCategory = findCoreCategory(categories)
                                 findWordQuantifier = findQ
                                 findWordQuantifier = findReverseQuantifier( findQ )
                             else:
                                 # if negation isn't found
-                                print('query RB JJ 213', fWord, findQ, prevPrevWord)
 
                                 findWordCategory = findCoreCategory(categories)
                                 findWordQuantifier = findQ
@@ -218,14 +245,11 @@ def main():
                             # If the word before JJ or Ajdective is found in negation or else
                             if prevWord in negations:
                                 findQ = findQuantifier(pWord)
-                                print('query RB RB JJ: negation 222', pWord, findQ)
-                                print('query RB RB JJ: negation 223', findReverseQuantifier(findQ))
                                 findWordCategory = findCoreCategory(categories)
                                 findWordQuantifier = findReverseQuantifier( findQ )
 
                             else:
 
-                                print('query RB JJ 229', fWord, findQ)
                                 findWordCategory = findCoreCategory(categories)
                                 findWordQuantifier = findQ
 
@@ -234,17 +258,13 @@ def main():
                     else:
                         findQ = findQuantifier(pWord)
                         prevWord = posText[idx - 1][0]
-                        print('prevWord')
-                        print(prevWord)
+
                         if prevWord in negations:
                             # if negation is found
-                            print('query RB JJ: negation 242', findQ)
-                            print('query RB JJ: negation 243', findReverseQuantifier(findQ))
                             findWordCategory = findCoreCategory(categories)
                             findWordQuantifier = findReverseQuantifier( findQ )
                         else:
                             # if negation isn't found
-                            print('query', findQ)
                             findWordCategory = findCoreCategory(categories)
                             findWordQuantifier = findQ
 
@@ -273,7 +293,6 @@ def main():
 
             for corecat in coreCategories:
 
-                print(corecat)
                 # If match found
                 if corecat not in findTheCategories:
                     findTheCategories[corecat] = {}
@@ -296,46 +315,152 @@ def main():
 
                 criteria_importances.append( [ coreCategories[coreCategory]['id'], currentScore ] )
 
-            print('Line 299')
-            print(criteria_importances)
-            #criteria_importances = [[6, "7.30"], [7, "9.56"], [8, "18.52"], [9, "37.50"], [10, "49.70"], [11, "61.45"]]
 
             apiOutput = sendDietApiRequest(criteria_importances, 6)
+
+
+
+            for aoutput in apiOutput:
+                newOutput = {}
+                curUrl = aoutput["primary_link"]
+
+                try:
+
+                    r = requests.get(curUrl)
+                    soup = BeautifulSoup(r.text)
+                    data = soup.findAll(text=True)
+
+                    result = filter(getTestVisible, data)
+
+                    newOutput['name'] = aoutput["option_title"]
+                    newOutput['link'] = curUrl
+                    newOutput['description'] = aoutput["option_details"]
+
+                    newOutput['texts'] = ' '.join(result)
+                    newOutput['keywords'] = []
+
+
+                    for food in foods:
+                        foodLower = food.lower()
+                        if foodLower in newOutput['texts']:
+                            newOutput['keywords'].append( food )
+                except:
+                    pass
+
+                # Looping for word cloud from Google result
+
+                allTexts = newOutput['texts']
+                allKeywords = newOutput['keywords']
+                for keyword in allKeywords:
+                    totalCount = allTexts.count(keyword)
+                    if keyword in googleSearchCloud:
+                        dietApiCloud[keyword] = dietApiCloud[keyword] + totalCount
+                    else:
+                        dietApiCloud[keyword] = totalCount
+
+                apiScrap.append(newOutput)
+
+
+            # Api output ends
 
             # Google search
             searchResults = google.search(inputText, num_page)
 
-            searchResults = searchResults[0:6]
+            searchResults = searchResults[0:7]
 
             for gResult in searchResults:
                 analyzedResult = {}
-                try:
-                    r = requests.get(gResult.link)
-                    soup = BeautifulSoup(r.text, 'html.parser')
 
-                    headings2 = soup.find_all('h2')[0:7]
-                    headings3 = soup.find_all('h3')[0:7]
+                try:
+
+                    r = requests.get(gResult.link)
+                    soup = BeautifulSoup(r.text)
+                    data = soup.findAll(text=True)
+
+                    result = filter(getTestVisible, data)
 
                     analyzedResult['name'] = gResult.name
                     analyzedResult['link'] = gResult.link
                     analyzedResult['description'] = gResult.description
 
-                    analyzedResult['headings2'] = None
-                    analyzedResult['headings3'] = None
+                    analyzedResult['texts'] = ' '.join(result)
+                    analyzedResult['keywords'] = []
 
-                    if headings2:
-                        analyzedResult['headings2'] = headings2
+                    for food in foods:
+                        foodLower = food.lower()
+                        if foodLower in analyzedResult['texts']:
+                            analyzedResult['keywords'].append( food )
 
-                    if headings3:
-                        analyzedResult['headings3'] = headings3
                 except:
                     pass
+
+                # Looping for word cloud from Google result
+
+                allTexts = analyzedResult['texts']
+                allKeywords = analyzedResult['keywords']
+                for keyword in allKeywords:
+                    totalCount = allTexts.count(keyword)
+                    if keyword in googleSearchCloud:
+                        googleSearchCloud[keyword] = googleSearchCloud[keyword] + totalCount
+                    else:
+                        googleSearchCloud[keyword] = totalCount
+
 
                 gSearchOutputs.append(analyzedResult)
 
 
-    return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput,
-                           gSearchOutputs=gSearchOutputs, quantifier=quantifier, apiOutput=apiOutput, findTheCategories=findTheCategories)
+
+
+            # Finding common data
+
+            for dt in gSearchOutputs:
+                count = 0
+                keywords = dt['keywords']
+
+                if count == 0:
+                    commonGoogleOutput = keywords
+                elif count > 0:
+                    commonGoogleOutput = list( set(commonGoogleOutput) ).intersection(keywords)
+
+
+                for keyw in keywords:
+                    if keyw not in unifiedGoogleOutput:
+                        unifiedGoogleOutput.append(keyw)
+
+                count = count + 1
+
+            print(unifiedGoogleOutput)
+            print("commonGoogleOutput")
+            print(commonGoogleOutput)
+
+            for dt in apiScrap:
+                count = 0
+                keywords = dt['keywords']
+
+                if count == 0:
+                    commonApiOutput = keywords
+                elif count > 0:
+                    commonApiOutput = list( set(commonApiOutput) ).intersection(keywords)
+
+                for keyw in keywords:
+                    if keyw not in unifiedApiOutput:
+                        unifiedApiOutput.append(keyw)
+
+                count = count + 1
+                print(count)
+
+            print(unifiedApiOutput)
+            print("commonApiOutput")
+            print(commonApiOutput)
+
+            # Finding common data Ends
+
+            print(googleSearchCloud)
+            print(dietApiCloud)
+
+    return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput, apiScrap=apiScrap, googleSearchCloud=googleSearchCloud,
+                                dietApiCloud=dietApiCloud, gSearchOutputs=gSearchOutputs, foods=foods,
+                               apiOutput=apiOutput, findTheCategories=findTheCategories)
 
 
 if __name__ == "__main__":

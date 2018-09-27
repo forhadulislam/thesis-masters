@@ -105,15 +105,9 @@
 			font-family: 'Scope One', serif;
 
 			font-family: 'Glass Antiqua', cursive;
-
-
-
-
-
-
-
-
     	*/
+
+
 		body{
 			font-size: 16px;
 			font-family: 'Biryani', sans-serif;
@@ -129,6 +123,10 @@
 			font-family: "Roboto Slab";
 			font-size: 42px;
 			color: #1DA1F2;
+		}
+		h3.guide-title {
+			font-family: "Coustard";
+			font-size: 30px;
 		}
 		input, button{
 			font-family: 'Pridi', serif;
@@ -179,7 +177,7 @@
     
     
     {% if inputText %}
-		<div class="col-md-6 col-md-offset-3">
+		<!--<div class="col-md-6 col-md-offset-3">
 			<h4><br /> <br />
 			foods:
 				<br /> <br />
@@ -188,40 +186,40 @@
 				<br /> <br />
 			POS Tags:
 			{{ posText }}</h4>
-		</div>
+		</div>-->
 		
 		<div class="col-md-12 criteria">
 			<div class="col-md-6 col-md-offset-3">
 
-                <h2 class="sub-heading text-right criteria">Criteria</h2>
+                <h2 class="sub-heading text-right criteria">Criterion</h2>
 
                 <div class="ranges">
-                  <label>The diet has rapid weight loss potential <span></span> </label>
+                  <label>The diet has rapid weight loss potential (<span>{% if findTheCategories['weight-loss']['score'] %}{{findTheCategories['weight-loss']['score']* 100}}{% else %}0{% endif %}</span>) </label>
                   <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['weight-loss']['score'] %}{{findTheCategories['weight-loss']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                     <br />
                 <div class="ranges">
-                  <label>The diet has strong long-term success potential <span></span> </label>
+                  <label>The diet has strong long-term success potential (<span>{% if findTheCategories['success']['score'] %}{{findTheCategories['success']['score']* 100}}{% else %}0{% endif %}</span>) </label>
                   <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['success']['score'] %}{{findTheCategories['success']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div><br />
                 <div class="ranges">
-                  <label>The diet is affordable <span></span> </label>
+                  <label>The diet is affordable (<span>{% if findTheCategories['cost']['score'] %}{{findTheCategories['cost']['score']* 100}}{% else %}0{% endif %}</span>) </label>
                   <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['cost']['score'] %}{{findTheCategories['cost']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                     <br />
                 <div class="ranges">
-                  <label>It is mentally stick to the diet <span></span> </label>
+                  <label>It is mentally stick to the diet (<span>{% if findTheCategories['mental-effort']['score'] %}{{findTheCategories['mental-effort']['score']* 100}}{% else %}0{% endif %}</span>) </label>
                   <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['mental-effort']['score'] %}{{findTheCategories['mental-effort']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                         <br />
                 <div class="ranges">
-                  <label>The diet provides all the nutrients needed for well-being <span></span> </label>
+                  <label>The diet provides all the nutrients needed for well-being (<span>{% if findTheCategories['nutrition']['score'] %}{{findTheCategories['nutrition']['score']* 100}}{% else %}0{% endif %}</span>) </label>
                   <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['nutrition']['score'] %}{{findTheCategories['nutrition']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
                 <br />
 
                 <div class="ranges">
-                  <label>The diet is generally recommended by others <span></span> </label>
+                  <label>The diet is generally recommended by others (<span>{% if findTheCategories['recommendation']['score'] %}{{findTheCategories['recommendation']['score']* 100}}{% else %}0{% endif %}</span>) </label>
                   <input class="rangeSlider" type="range" min="0" max="100" value="{% if findTheCategories['recommendation']['score'] %}{{findTheCategories['recommendation']['score']* 100}}{% else %}0{% endif %}" class="slider" id="myRange">
                 </div>
 
@@ -232,7 +230,10 @@
             {% if gSearchOutputs %}
 
                 <div class="col-md-6 google-results">
-                    <h2 class="sub-heading text-center"><big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big> <span style="color: #4885ed">search</span> <span style="color: #db3236">results</span></h2>
+                    <h2 class="sub-heading text-center">
+                        <big>Diet</big> API Results [1]
+                        <!--<big><span style="color: #4885ed">G</span><span style="color: #db3236">o</span><span style="color: #f4c20d">o</span><span style="color: #4885ed">g</span><span style="color: #3cba54">l</span><span style="color: #db3236">e</span></big><span style="color: #4885ed">search</span> <span style="color: #db3236">results</span>-->
+                    </h2>
 
                     <div class="results-all">
                         {% for googleWord in googleSearchCloud %}
@@ -241,7 +242,15 @@
                     </div>
 
                     <br /><br />
-                    <h3>Links</h3>
+                    <h2>Recipes</h2>
+                    <ul>
+                    {% for aRecipe in recipeApiOutputforGoogle %}
+                        <li><a href='{{ aRecipe.recipe.url }}' target='_blank'> {{ aRecipe.recipe.label }} </a></li>
+                    {% endfor %}
+                    </ul>
+
+                    <br /><br />
+                    <h1>Links</h1>
                     {% for result in gSearchOutputs %}
 
                             {% if result.texts %}
@@ -261,7 +270,7 @@
 
 
                 <div class="col-md-6">
-                    <h2 class="sub-heading text-center"> <big>Diet</big> API Results </h2>
+                    <h2 class="sub-heading text-center"> <big>Diet</big> API Results [2] </h2>
 
                     <div class="results-all">
                         {% for dietWord in dietApiCloud %}
@@ -270,7 +279,15 @@
                     </div>
 
                     <br /><br />
-                    <h3>Links</h3>
+                    <h2>Recipes</h2>
+                    <ul>
+                    {% for aRecipe in recipeApiOutputforDiet %}
+                         <li><a href='{{ aRecipe.recipe.url }}' target='_blank'> {{ aRecipe.recipe.label }} </a></li>
+                    {% endfor %}
+                    </ul>
+
+                    <br /><br />
+                    <h1>Links</h1>
                     {% for apiResult in apiScrap %}
                         <h3><a href='{{ apiResult.link }}' target='_blank'>{{ apiResult.name }}</a></h3> <br />
                         <!--<p> {{ apiResult.keywords }} </p>-->
@@ -280,8 +297,32 @@
 
             {% endif %}
         </div>
+    {% else %}
+        <div class="col-md-12">
+            <div class="col-md-6 col-md-offset-3">
+                <br />
+                <h3 class="guide-title">Guidelines</h3>
+                This is a thesis project where users can search for diets based on 6 different criterion.
+                <ul><b>Here is the list of criterion</b>:
+                    <li>The diet has rapid weight loss potential</li>
+                    <li>The diet has strong long-term success potential</li>
+                    <li>The diet is affordable</li>
+                    <li>It is mentally stick to the diet</li>
+                    <li>The diet provides all the nutrients needed for well-being</li>
+                    <li>The diet is generally recommended by others</li>
+                </ul>
+                <p>Here are some example diet search keywords which can give you some hints:</p>
+                <ul>
+                    <li>i want a diet with high <b>nutrition</b> and low <b>cost</b></li>
+                    <li>i want a diet with not high <b>cost</b> and not so low nutrition with high mental support</li>
+                    <li>i want a diet with high <b>cost</b></li>
+                </ul>
+            </div>
+        </div>
+
+
     {% endif %}
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
 
@@ -296,56 +337,19 @@
     <script>
 		$(document).ready(function(){
 
-		    alert('Works');
-
 			$(".slider").slider();
 
 
 			var values = [2, 30, 20, 30, 35, 45];
-            $('.ranges .rangeSlider').change(function() {
-                console.log( this.value );
-                console.log( $(this).parent('.ranges') );
-                $(this).parent('.ranges').children('label span').text(values[this.value]);
+            $('.ranges .rangeSlider').on("input change",function() {
+                var currentValue = this.value;
+                $(this).parent('.ranges').children('label').children('span').text(currentValue);
             });
 
 
 		});	
     </script>
     <script>
-        var recognition = new webkitSpeechRecognition();
-
-        // Are we processing a short phrase or performing continuous dictation?
-        recognition.continuous = true;
-
-        // Do we require interim results in addition to the final results?
-        recognition.interimResults = true;
-
-        // We speak The Queens English here, my good man
-        recognition.lang = 'en-GB'
-
-        // Kick off the Speech to Text recognition process
-        recognition.start();
-
-
-        // Set up
-        recognition.onstart = function(event){
-         console.log("onstart", event);
-        }
-
-        // Process parsed result
-        recognition.onresult = function(event){
-         console.log("onresult", event);
-        }
-
-        // Handle error
-        recognition.onerror = function(event){
-         console.log("onerror", event);
-        }
-
-        // Housekeeping after success or failed parsing
-        recognition.onend = function(){
-         console.log("onend");
-        }
 
     </script>
     

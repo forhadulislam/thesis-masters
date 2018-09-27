@@ -99,6 +99,20 @@ def sendDietApiRequest(criteria_importances, num_of_options=6, user_id='msc_forh
     except:
         return False
 
+def sendRecipeRequest(dataAll):
+    try:
+        dataAll.update({'app_id': '35fd07fe'})
+        dataAll.update({'app_key': '1c0ecbf69c61c7c71cdca223587837d0'})
+        dataAll.update({'from': '0'})
+        dataAll.update({'to': '3'})
+        r = requests.get('https://api.edamam.com/search', params=dataAll)
+        return (r.text)
+
+    except:
+        return False
+
+    pass
+
 def findQuantifier( queryWord ):
 
     resultOutput = {}
@@ -182,6 +196,11 @@ def main():
 
     googleSearchCloud = {}
     dietApiCloud = {}
+
+    # Recipe variables
+
+    recipeApiOutputforGoogle = recipeApiOutputforDiet = ''
+    recipeApiOutputforGoogle = recipeApiOutputforDiet = []
 
     if request.method == 'GET':
         inputText = request.args.get('query')
@@ -455,12 +474,33 @@ def main():
 
             # Finding common data Ends
 
-            print(googleSearchCloud)
-            print(dietApiCloud)
+            print( "Final sorted output" )
+
+            top2GoogleSearchElem = sorted(googleSearchCloud.items(), key=lambda x: x[1])[-2:]
+            top2DietApiElem = sorted(dietApiCloud.items(), key=lambda x: x[1])[-2:]
+
+            print(top2GoogleSearchElem)
+            print(top2DietApiElem)
+
+            try:
+                for gingrItem in top2GoogleSearchElem:
+                    recipeQuery = { 'q': gingrItem[0], 'health': 'alcohol-free'}
+                    theRecipeApiOutputforGoogle = json.loads(sendRecipeRequest(recipeQuery))
+
+                    recipeApiOutputforGoogle = recipeApiOutputforGoogle + theRecipeApiOutputforGoogle['hits']
+
+
+                for dietIngrItem in top2DietApiElem:
+                    recipeQuery = { 'q': dietIngrItem[0], 'health': 'alcohol-free'}
+                    theRecipeApiOutputforDiet = json.loads(sendRecipeRequest(recipeQuery))
+                    recipeApiOutputforDiet = recipeApiOutputforDiet + theRecipeApiOutputforDiet['hits']
+            except:
+                pass
+
 
     return render_template('index.html', inputText=inputText, posText=posText, finalOutput=finalOutput, apiScrap=apiScrap, googleSearchCloud=googleSearchCloud,
-                                dietApiCloud=dietApiCloud, gSearchOutputs=gSearchOutputs, foods=foods,
-                               apiOutput=apiOutput, findTheCategories=findTheCategories)
+                                dietApiCloud=dietApiCloud, gSearchOutputs=gSearchOutputs, foods=foods, recipeApiOutputforDiet=recipeApiOutputforDiet,
+                           recipeApiOutputforGoogle=recipeApiOutputforGoogle,apiOutput=apiOutput, findTheCategories=findTheCategories)
 
 
 if __name__ == "__main__":
